@@ -4,7 +4,9 @@ import Dashboard from './pages/Dashboard';
 import OrderList from './pages/OrderList';
 import OrderDetail from './pages/OrderDetail';
 import OrderImport from './pages/OrderImport';
+import AdvancedOrderImport from './pages/AdvancedOrderImport';
 import ImportLogs from './pages/ImportLogs';
+import FieldMappingTemplates from './pages/FieldMappingTemplates';
 
 function App() {
   return (
@@ -16,7 +18,9 @@ function App() {
             <nav>
               <NavLink to="/" end>首頁</NavLink>
               <NavLink to="/orders">訂單列表</NavLink>
-              <NavLink to="/import">訂單匯入</NavLink>
+              <NavLink to="/import">快速匯入</NavLink>
+              <NavLink to="/advanced-import">進階匯入</NavLink>
+              <NavLink to="/field-mapping">欄位映射</NavLink>
               <NavLink to="/import-logs">匯入記錄</NavLink>
             </nav>
           </div>
@@ -28,6 +32,8 @@ function App() {
             <Route path="/orders" element={<OrderList />} />
             <Route path="/orders/:id" element={<OrderDetail />} />
             <Route path="/import" element={<OrderImport />} />
+            <Route path="/advanced-import" element={<AdvancedOrderImport />} />
+            <Route path="/field-mapping" element={<FieldMappingTemplates />} />
             <Route path="/import-logs" element={<ImportLogs />} />
           </Routes>
         </main>
