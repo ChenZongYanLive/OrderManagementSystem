@@ -35,24 +35,33 @@ class Order {
       const orderResult = await client.query(orderQuery, orderValues);
       const order = orderResult.rows[0];
 
-      // Insert order items
+      // Insert order items - batch insert for better performance
       if (items && items.length > 0) {
-        for (const item of items) {
-          const itemQuery = `
-            INSERT INTO order_items (
-              order_id, product_name, product_sku, quantity, unit_price, subtotal
-            ) VALUES ($1, $2, $3, $4, $5, $6)
-          `;
-          const itemValues = [
+        const itemValues = [];
+        const itemPlaceholders = [];
+
+        items.forEach((item, index) => {
+          const baseIndex = index * 6;
+          itemPlaceholders.push(
+            `($${baseIndex + 1}, $${baseIndex + 2}, $${baseIndex + 3}, $${baseIndex + 4}, $${baseIndex + 5}, $${baseIndex + 6})`
+          );
+          itemValues.push(
             order.id,
             item.product_name,
             item.product_sku || null,
             item.quantity,
             item.unit_price,
-            item.subtotal || (item.quantity * item.unit_price),
-          ];
-          await client.query(itemQuery, itemValues);
-        }
+            item.subtotal || (item.quantity * item.unit_price)
+          );
+        });
+
+        const itemQuery = `
+          INSERT INTO order_items (
+            order_id, product_name, product_sku, quantity, unit_price, subtotal
+          ) VALUES ${itemPlaceholders.join(', ')}
+        `;
+
+        await client.query(itemQuery, itemValues);
       }
 
       await client.query('COMMIT');

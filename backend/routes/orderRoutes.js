@@ -7,14 +7,20 @@ import {
   deleteOrder,
   getOrderStatistics,
 } from '../controllers/orderController.js';
+import {
+  validateOrderCreation,
+  validateOrderUpdate,
+  validateId,
+  validatePagination,
+} from '../middleware/validation.js';
 
 const router = express.Router();
 
-router.get('/', getAllOrders);
+router.get('/', validatePagination, getAllOrders);
 router.get('/statistics', getOrderStatistics);
-router.get('/:id', getOrderById);
-router.post('/', createOrder);
-router.put('/:id', updateOrder);
-router.delete('/:id', deleteOrder);
+router.get('/:id', validateId, getOrderById);
+router.post('/', validateOrderCreation, createOrder);
+router.put('/:id', validateId, validateOrderUpdate, updateOrder);
+router.delete('/:id', validateId, deleteOrder);
 
 export default router;
