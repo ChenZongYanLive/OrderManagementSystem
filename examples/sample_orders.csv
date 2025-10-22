@@ -1,0 +1,6 @@
+order_number,customer_name,customer_email,customer_phone,customer_address,total_amount,status,product_name,product_sku,quantity,unit_price
+ORD-20241001,張小明,zhang@example.com,0912345678,台北市信義區信義路100號,1500,pending,筆記型電腦,SKU-001,1,1500
+ORD-20241002,李小華,li@example.com,0923456789,新北市板橋區中山路200號,3000,processing,無線滑鼠,SKU-002,3,1000
+ORD-20241003,王大衛,wang@example.com,0934567890,台中市西屯區台灣大道300號,5000,completed,機械鍵盤,SKU-003,2,2500
+ORD-20241004,陳美玲,chen@example.com,0945678901,高雄市前金區中正四路400號,2000,pending,USB充電器,SKU-004,4,500
+ORD-20241005,林志明,lin@example.com,0956789012,台南市東區大學路500號,7500,processing,27吋螢幕,SKU-005,1,7500

@@ -1,0 +1,68 @@
+[
+  {
+    "order_number": "ORD-20241006",
+    "customer_name": "黃小芬",
+    "customer_email": "huang@example.com",
+    "customer_phone": "0967890123",
+    "customer_address": "桃園市中壢區中大路600號",
+    "total_amount": 4500,
+    "status": "pending",
+    "currency": "TWD",
+    "items": [
+      {
+        "product_name": "藍牙耳機",
+        "product_sku": "SKU-006",
+        "quantity": 3,
+        "unit_price": 1500
+      }
+    ]
+  },
+  {
+    "order_number": "ORD-20241007",
+    "customer_name": "吳宗憲",
+    "customer_email": "wu@example.com",
+    "customer_phone": "0978901234",
+    "customer_address": "新竹市東區光復路700號",
+    "total_amount": 8500,
+    "status": "processing",
+    "currency": "TWD",
+    "items": [
+      {
+        "product_name": "網路攝影機",
+        "product_sku": "SKU-007",
+        "quantity": 1,
+        "unit_price": 3500
+      },
+      {
+        "product_name": "麥克風",
+        "product_sku": "SKU-008",
+        "quantity": 1,
+        "unit_price": 5000
+      }
+    ]
+  },
+  {
+    "order_number": "ORD-20241008",
+    "customer_name": "蔡依林",
+    "customer_email": "cai@example.com",
+    "customer_phone": "0989012345",
+    "customer_address": "台北市大安區敦化南路800號",
+    "total_amount": 12000,
+    "status": "completed",
+    "currency": "TWD",
+    "items": [
+      {
+        "product_name": "外接硬碟 2TB",
+        "product_sku": "SKU-009",
+        "quantity": 2,
+        "unit_price": 3000
+      },
+      {
+        "product_name": "隨身碟 64GB",
+        "product_sku": "SKU-010",
+        "quantity": 6,
+        "unit_price": 1000
+      }
+    ]
+  }
+]
