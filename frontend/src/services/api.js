@@ -34,4 +34,30 @@ export const importAPI = {
   getLogByBatchId: (batchId) => api.get(`/import/logs/${batchId}`),
 };
 
+// Field Mapping API
+export const fieldMappingAPI = {
+  // Templates
+  getTemplates: (params) => api.get('/field-mapping/templates', { params }),
+  getTemplateById: (id) => api.get(`/field-mapping/templates/${id}`),
+  createTemplate: (data) => api.post('/field-mapping/templates', data),
+  updateTemplate: (id, data) => api.put(`/field-mapping/templates/${id}`, data),
+  deleteTemplate: (id) => api.delete(`/field-mapping/templates/${id}`),
+  setDefaultTemplate: (id, fileType) =>
+    api.post(`/field-mapping/templates/${id}/set-default`, { file_type: fileType }),
+
+  // Preview
+  previewFile: (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return api.post('/field-mapping/preview', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  // System fields
+  getSystemFields: () => api.get('/field-mapping/system-fields'),
+};
+
 export default api;

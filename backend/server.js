@@ -3,6 +3,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import orderRoutes from './routes/orderRoutes.js';
 import importRoutes from './routes/importRoutes.js';
+import fieldMappingRoutes from './routes/fieldMappingRoutes.js';
 
 dotenv.config();
 
@@ -35,6 +36,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/api/orders', orderRoutes);
 app.use('/api/import', importRoutes);
+app.use('/api/field-mapping', fieldMappingRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
