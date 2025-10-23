@@ -116,9 +116,13 @@ function AdvancedOrderImport() {
       setLoading(true);
       setError(null);
 
-      // TODO: Implement import with mapping
-      // For now, use the standard import
-      const response = await importAPI.uploadFile(file);
+      // Import with field mapping
+      const response = await importAPI.uploadFileWithMapping(
+        previewData.tempFilePath,
+        previewData.fileName,
+        previewData.fileType,
+        fieldMapping
+      );
       setImportResult(response.data);
       setStep(3);
     } catch (err) {

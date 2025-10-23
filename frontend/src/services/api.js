@@ -30,6 +30,13 @@ export const importAPI = {
       },
     });
   },
+  uploadFileWithMapping: (tempFilePath, fileName, fileType, fieldMapping) =>
+    api.post('/import/upload-with-mapping', {
+      tempFilePath,
+      fileName,
+      fileType,
+      fieldMapping,
+    }),
   getLogs: (params) => api.get('/import/logs', { params }),
   getLogByBatchId: (batchId) => api.get(`/import/logs/${batchId}`),
 };

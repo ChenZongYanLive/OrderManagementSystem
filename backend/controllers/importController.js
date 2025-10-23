@@ -66,3 +66,43 @@ export const getImportLogByBatchId = async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch import log' });
   }
 };
+
+// Import orders with field mapping
+export const importOrdersWithMapping = async (req, res) => {
+  try {
+    const { tempFilePath, fileName, fileType, fieldMapping } = req.body;
+
+    // Validate required parameters
+    if (!tempFilePath) {
+      return res.status(400).json({ error: 'tempFilePath is required' });
+    }
+
+    if (!fileName) {
+      return res.status(400).json({ error: 'fileName is required' });
+    }
+
+    if (!fileType) {
+      return res.status(400).json({ error: 'fileType is required' });
+    }
+
+    if (!fieldMapping || Object.keys(fieldMapping).length === 0) {
+      return res.status(400).json({ error: 'Field mapping is required' });
+    }
+
+    // Execute import with field mapping
+    const result = await OrderImportService.importOrdersWithMapping(
+      tempFilePath,
+      fileName,
+      fileType,
+      fieldMapping
+    );
+
+    res.json({
+      message: 'Import with mapping completed',
+      ...result,
+    });
+  } catch (error) {
+    console.error('Error importing orders with mapping:', error);
+    res.status(500).json({ error: error.message || 'Failed to import orders with mapping' });
+  }
+};

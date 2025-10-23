@@ -4,6 +4,7 @@ import XLSX from 'xlsx';
 import { v4 as uuidv4 } from 'uuid';
 import Order from '../models/Order.js';
 import ImportLog from '../models/ImportLog.js';
+import FieldMappingService from './fieldMappingService.js';
 
 class OrderImportService {
   // Parse CSV file
@@ -168,6 +169,166 @@ class OrderImportService {
       }
 
       throw error;
+    }
+  }
+
+  // Import orders with field mapping
+  static async importOrdersWithMapping(filePath, fileName, fileType, fieldMapping) {
+    const batchId = uuidv4();
+    let rawData = [];
+    let successCount = 0;
+    let errorCount = 0;
+    const errors = [];
+
+    try {
+      // Validate file exists
+      if (!fs.existsSync(filePath)) {
+        throw new Error('File not found');
+      }
+
+      // Validate field mapping
+      if (!fieldMapping || Object.keys(fieldMapping).length === 0) {
+        throw new Error('Field mapping is required');
+      }
+
+      // Parse file based on type
+      if (fileType === 'csv') {
+        rawData = await this.parseCSV(filePath);
+      } else if (fileType === 'excel' || fileType === 'xlsx') {
+        rawData = this.parseExcel(filePath);
+      } else if (fileType === 'json') {
+        const jsonData = this.parseJSON(filePath);
+        rawData = Array.isArray(jsonData) ? jsonData : [jsonData];
+      } else {
+        throw new Error('Unsupported file type');
+      }
+
+      // Validate data
+      if (!rawData || rawData.length === 0) {
+        throw new Error('File contains no data');
+      }
+
+      // Get system field definitions
+      const systemFields = FieldMappingService.getSystemFieldDefinitions();
+
+      // Create import log
+      await ImportLog.create({
+        batch_id: batchId,
+        file_name: fileName,
+        file_type: fileType,
+        total_records: rawData.length,
+        status: 'processing',
+      });
+
+      // Process each record with field mapping
+      for (let i = 0; i < rawData.length; i++) {
+        try {
+          // Transform data using field mapping
+          const transformedData = FieldMappingService.transformRecord(rawData[i], fieldMapping);
+
+          // Convert data types
+          const typedData = FieldMappingService.convertDataTypes(transformedData, systemFields);
+
+          // Separate order and item data
+          const { orderData, itemData } = FieldMappingService.separateOrderAndItems(typedData);
+
+          // Set default values
+          orderData.import_batch_id = batchId;
+          orderData.source = 'import';
+          if (!orderData.order_number) {
+            orderData.order_number = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          }
+          if (!orderData.status) {
+            orderData.status = 'pending';
+          }
+          if (!orderData.currency) {
+            orderData.currency = 'TWD';
+          }
+          if (!orderData.order_date) {
+            orderData.order_date = new Date().toISOString();
+          }
+
+          // Validate required fields
+          const orderErrors = FieldMappingService.validateRequiredFields(orderData, systemFields);
+          if (orderErrors.length > 0) {
+            throw new Error(orderErrors.join(', '));
+          }
+
+          // Prepare items array
+          const items = [];
+          if (itemData.product_name) {
+            // Validate item required fields
+            const itemErrors = FieldMappingService.validateItemFields(itemData, systemFields);
+            if (itemErrors.length > 0) {
+              throw new Error(itemErrors.join(', '));
+            }
+
+            // Calculate subtotal if not provided
+            if (!itemData.subtotal && itemData.quantity && itemData.unit_price) {
+              itemData.subtotal = itemData.quantity * itemData.unit_price;
+            }
+
+            items.push(itemData);
+          }
+
+          if (items.length === 0) {
+            throw new Error('至少需要一個商品項目');
+          }
+
+          // Calculate total amount if not provided
+          if (!orderData.total_amount && items.length > 0) {
+            orderData.total_amount = items.reduce((sum, item) => sum + (item.subtotal || 0), 0);
+          }
+
+          // Create order
+          await Order.create(orderData, items);
+          successCount++;
+        } catch (error) {
+          errorCount++;
+          errors.push({
+            row: i + 1,
+            error: error.message,
+            data: rawData[i],
+          });
+        }
+      }
+
+      // Update import log
+      await ImportLog.update(batchId, {
+        success_count: successCount,
+        error_count: errorCount,
+        status: errorCount === 0 ? 'completed' : 'completed_with_errors',
+        error_details: errors.length > 0 ? JSON.stringify(errors) : null,
+      });
+
+      return {
+        batchId,
+        totalRecords: rawData.length,
+        successCount,
+        errorCount,
+        errors,
+      };
+    } catch (error) {
+      // Update import log with error
+      try {
+        await ImportLog.update(batchId, {
+          status: 'failed',
+          error_details: JSON.stringify({ message: error.message }),
+        });
+      } catch (logError) {
+        console.error('Failed to update import log:', logError);
+      }
+
+      throw error;
+    } finally {
+      // Clean up uploaded file
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch (cleanupError) {
+          console.error('Failed to delete uploaded file:', cleanupError);
+        }
+      }
     }
   }
 }
